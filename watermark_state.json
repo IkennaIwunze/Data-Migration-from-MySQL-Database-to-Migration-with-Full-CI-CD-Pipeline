@@ -1,0 +1,67 @@
+{
+  "raw_olist_customers": {
+    "strategy": "keyset",
+    "last_values": [
+      "ffffe8b65bbe3087b653a978c870db99"
+    ],
+    "batch_number": 20,
+    "updated_at": "2026-07-28T10:27:59.949689"
+  },
+  "raw_olist_geolocation": {
+    "strategy": "column",
+    "last_value": 1000163,
+    "batch_number": 201,
+    "updated_at": "2026-07-28T10:33:36.107632"
+  },
+  "raw_olist_sellers": {
+    "strategy": "keyset",
+    "last_values": [
+      "ffff564a4f9085cd26170f4732393726"
+    ],
+    "batch_number": 1,
+    "updated_at": "2026-07-28T10:33:37.837934"
+  },
+  "raw_olist_product_category_translation": {
+    "strategy": "column",
+    "last_value": 71,
+    "batch_number": 1,
+    "updated_at": "2026-07-28T10:33:38.535257"
+  },
+  "raw_olist_products": {
+    "strategy": "keyset",
+    "last_values": [
+      "fffe9eeff12fcbd74a2f2b007dde0c58"
+    ],
+    "batch_number": 7,
+    "updated_at": "2026-07-28T10:33:53.674010"
+  },
+  "raw_olist_orders": {
+    "strategy": "keyset",
+    "last_values": [
+      "fffe41c64501cc87c801fd61db3f6244"
+    ],
+    "batch_number": 20,
+    "updated_at": "2026-07-28T10:34:40.394064"
+  },
+  "raw_olist_order_items": {
+    "strategy": "keyset",
+    "last_values": [
+      "fffe41c64501cc87c801fd61db3f6244",
+      "1"
+    ],
+    "batch_number": 23,
+    "updated_at": "2026-07-28T10:35:24.332508"
+  },
+  "raw_olist_order_payments": {
+    "strategy": "column",
+    "last_value": 103886,
+    "batch_number": 21,
+    "updated_at": "2026-07-28T10:35:56.162114"
+  },
+  "raw_olist_order_reviews": {
+    "strategy": "column",
+    "last_value": 99223,
+    "batch_number": 20,
+    "updated_at": "2026-07-28T10:38:04.041740"
+  }
+}
