@@ -32,8 +32,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_olist_data_model:
     bronze:
-      +materialized: view
+      +materialized: incremental
     silver:
-      +materialized: table
+      +materialized: incremental
     gold:
-      +materialized: table
+      +materialized: incremental
