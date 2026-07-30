@@ -33,7 +33,10 @@ models:
   dbt_olist_data_model:
     bronze:
       +materialized: incremental
+      +schema: bronze
     silver:
       +materialized: incremental
+      +schema: silver
     gold:
       +materialized: incremental
+      +schema: gold
