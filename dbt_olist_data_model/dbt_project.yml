@@ -31,6 +31,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   dbt_olist_data_model:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    bronze:
       +materialized: view
+    silver:
+      +materialized: table
+    gold:
+      +materialized: table
