@@ -8,13 +8,13 @@
 select
     product_id,
     product_category_name,
-    product_name_lenght::number as product_name_length,
-    product_description_lenght::number as product_description_length,
-    product_photos_qty::number as product_photos_qty,
-    product_weight_g::number as product_weight_g,
-    product_length_cm::number as product_length_cm,
-    product_height_cm::number as product_height_cm,
-    product_width_cm::number as product_width_cm,
+    try_to_number(product_name_lenght) as product_name_length,
+    try_to_number(product_description_lenght) as product_description_length,
+    try_to_number(product_photos_qty) as product_photos_qty,
+    try_to_number(product_weight_g) as product_weight_g,
+    try_to_number(product_length_cm) as product_length_cm,
+    try_to_number(product_height_cm) as product_height_cm,
+    try_to_number(product_width_cm) as product_width_cm,
     _ingested_at::timestamp_ntz as ingested_at
 from {{ source('raw_olist', 'raw_olist_products') }}
 

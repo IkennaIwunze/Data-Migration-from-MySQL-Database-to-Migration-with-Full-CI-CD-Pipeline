@@ -12,8 +12,8 @@ select
     review_score::number as review_score,
     review_comment_title,
     review_comment_message,
-    review_creation_date::timestamp_ntz as review_creation_date,
-    review_answer_timestamp::timestamp_ntz as review_answer_timestamp,
+    try_to_timestamp_ntz(review_creation_date) as review_creation_date,
+    try_to_timestamp_ntz(review_answer_timestamp) as review_answer_timestamp,
     _ingested_at::timestamp_ntz as ingested_at
 from {{ source('raw_olist', 'raw_olist_order_reviews') }}
 
