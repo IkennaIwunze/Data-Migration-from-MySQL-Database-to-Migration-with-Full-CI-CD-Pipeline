@@ -1,11 +1,13 @@
 {{
     config(
         materialized='incremental',
-        unique_key=['order_id', 'payment_sequential']
+        unique_key='payment_id'
     )
 }}
 
 select
+    payment_id,
+
     case
         when order_id is null then 'Unknown'
         else order_id
@@ -14,9 +16,9 @@ select
     payment_sequential,
 
     case
-        when payment_type is null then 'Not_defined'
-        when payment_type regexp '^[0-9].*' then 'Not_defined'
-        else initcap(trim(payment_type))
+        when payment_type is null then 'Unknown'
+        when payment_type regexp '^[0-9].*' then 'Unknown'
+        else payment_type
     end as payment_type,
 
     payment_installments,
