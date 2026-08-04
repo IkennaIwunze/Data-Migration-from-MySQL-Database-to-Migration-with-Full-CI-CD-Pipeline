@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: slv_customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: slv_sellers
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+  - name: slv_products
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: slv_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('slv_customers')
+              field: customer_id
+
+  - name: slv_order_items
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('slv_orders')
+              field: order_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('slv_products')
+              field: product_id
+      - name: seller_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('slv_sellers')
+              field: seller_id
+
+  - name: slv_order_payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('slv_orders')
+              field: order_id
+
+  - name: slv_order_reviews
+    columns:
+      - name: review_pk_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('slv_orders')
+              field: order_id
+
+  - name: slv_geolocation
+    columns:
+      - name: geolocation_id
+        tests:
+          - unique
+          - not_null
