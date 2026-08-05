@@ -1,4 +1,3 @@
-
 import json
 import decimal
 import datetime
@@ -6,6 +5,7 @@ import os
 from pathlib import Path
 import boto3
 import mysql.connector
+from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -30,7 +30,7 @@ MYSQL_CONFIG = {
 S3_BUCKET = os.environ.get("S3_BUCKET_NAME", "")
 S3_PREFIX = "ecommerce-dataset"  # top-level folder in the bucket
 
-WATERMARK_FILE = Path("watermark_state.json")
+WATERMARK_S3_KEY = "pipeline-state/watermark_state.json"
 BATCH_SIZE = 5000
 
 TABLES = [
@@ -97,16 +97,22 @@ def json_default(obj):
     raise TypeError(f"Type {type(obj)} not serializable")
 
 
-def load_watermarks():
-    if WATERMARK_FILE.exists():
-        with open(WATERMARK_FILE, "r") as f:
-            return json.load(f)
-    return {}
+def load_watermarks(s3):
+    """Read watermark_state.json from S3. Returns {} if it doesn't exist yet
+    (e.g. first-ever run)."""
+    try:
+        response = s3.get_object(Bucket=S3_BUCKET, Key=WATERMARK_S3_KEY)
+        return json.loads(response["Body"].read().decode("utf-8"))
+    except ClientError as e:
+        if e.response["Error"]["Code"] in ("NoSuchKey", "404"):
+            return {}
+        raise
 
 
-def save_watermarks(state):
-    with open(WATERMARK_FILE, "w") as f:
-        json.dump(state, f, indent=2, default=str)
+def save_watermarks(s3, state):
+    """Write watermark_state.json to S3, overwriting the previous version."""
+    body = json.dumps(state, indent=2, default=str)
+    s3.put_object(Bucket=S3_BUCKET, Key=WATERMARK_S3_KEY, Body=body.encode("utf-8"))
 
 
 def get_s3_client():
@@ -178,7 +184,7 @@ def ingest_column_strategy(conn, s3, table_cfg, watermarks):
             "batch_number": batch_number,
             "updated_at": datetime.datetime.utcnow().isoformat(),
         }
-        save_watermarks(watermarks)
+        save_watermarks(s3, watermarks)
 
         if len(rows) < BATCH_SIZE:
             break
@@ -227,7 +233,7 @@ def ingest_keyset_strategy(conn, s3, table_cfg, watermarks):
             "batch_number": batch_number,
             "updated_at": datetime.datetime.utcnow().isoformat(),
         }
-        save_watermarks(watermarks)
+        save_watermarks(s3, watermarks)
 
         if len(rows) < BATCH_SIZE:
             break
@@ -240,9 +246,9 @@ def ingest_keyset_strategy(conn, s3, table_cfg, watermarks):
 # ---------------------------------------------------------------------------
 
 def main():
-    watermarks = load_watermarks()
-    conn = mysql.connector.connect(**MYSQL_CONFIG)
     s3 = get_s3_client()
+    watermarks = load_watermarks(s3)
+    conn = mysql.connector.connect(**MYSQL_CONFIG)
 
     try:
         for table_cfg in TABLES:
