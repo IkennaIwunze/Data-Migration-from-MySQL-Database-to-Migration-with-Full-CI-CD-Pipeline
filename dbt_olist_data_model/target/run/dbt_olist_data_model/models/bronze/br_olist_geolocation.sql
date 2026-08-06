@@ -1,0 +1,30 @@
+-- back compat for old kwarg name
+  
+  begin;
+    
+        
+            
+            
+            
+            
+        
+    
+
+    
+
+    merge into OLIST_DW.bronze.br_olist_geolocation as DBT_INTERNAL_DEST
+        using OLIST_DW.bronze.br_olist_geolocation__dbt_tmp as DBT_INTERNAL_SOURCE
+        on ((DBT_INTERNAL_SOURCE.geolocation_id = DBT_INTERNAL_DEST.geolocation_id))
+
+    
+    when matched then update set
+        "GEOLOCATION_ID" = DBT_INTERNAL_SOURCE."GEOLOCATION_ID","GEOLOCATION_ZIP_CODE_PREFIX" = DBT_INTERNAL_SOURCE."GEOLOCATION_ZIP_CODE_PREFIX","GEOLOCATION_LAT" = DBT_INTERNAL_SOURCE."GEOLOCATION_LAT","GEOLOCATION_LNG" = DBT_INTERNAL_SOURCE."GEOLOCATION_LNG","GEOLOCATION_CITY" = DBT_INTERNAL_SOURCE."GEOLOCATION_CITY","GEOLOCATION_STATE" = DBT_INTERNAL_SOURCE."GEOLOCATION_STATE","INGESTED_AT" = DBT_INTERNAL_SOURCE."INGESTED_AT"
+    
+
+    when not matched then insert
+        ("GEOLOCATION_ID", "GEOLOCATION_ZIP_CODE_PREFIX", "GEOLOCATION_LAT", "GEOLOCATION_LNG", "GEOLOCATION_CITY", "GEOLOCATION_STATE", "INGESTED_AT")
+    values
+        ("GEOLOCATION_ID", "GEOLOCATION_ZIP_CODE_PREFIX", "GEOLOCATION_LAT", "GEOLOCATION_LNG", "GEOLOCATION_CITY", "GEOLOCATION_STATE", "INGESTED_AT")
+
+;
+    commit;
