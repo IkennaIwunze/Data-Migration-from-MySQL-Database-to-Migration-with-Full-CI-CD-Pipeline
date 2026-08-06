@@ -8,3 +8,5 @@ dependencies = [
     "dbt-core>=1.12.0",
     "dbt-snowflake>=1.12.0",
 ]
+[tool.ruff.lint]
+ignore = ["DTZ003"]
