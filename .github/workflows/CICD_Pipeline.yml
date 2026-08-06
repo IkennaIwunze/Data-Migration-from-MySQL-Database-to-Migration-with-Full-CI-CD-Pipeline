@@ -24,10 +24,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pytest ruff
-          pip install -r ingestion/requirements.txt
+          pip install -r Ingestion/requirements.txt
 
       - name: Lint with ruff
-        run: ruff check ingestion/
+        run: ruff check Ingestion/
 
       - name: Run unit tests
-        run: pytest test/ -v
+        run: pytest Test/ -v
