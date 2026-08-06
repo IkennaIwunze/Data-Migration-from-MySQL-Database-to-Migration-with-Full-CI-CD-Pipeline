@@ -30,4 +30,4 @@ jobs:
         run: ruff check Ingestion/
 
       - name: Run unit tests
-        run: pytest test/ -v
+        run: pytest Test/ -v
