@@ -10,3 +10,5 @@ dependencies = [
 ]
 [tool.ruff.lint]
 ignore = ["DTZ003"]
+[tool.pytest.ini_options]
+python_files = "Test_*.py test_*.py"
