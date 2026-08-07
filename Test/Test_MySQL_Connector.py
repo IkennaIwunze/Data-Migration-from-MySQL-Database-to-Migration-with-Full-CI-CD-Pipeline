@@ -10,7 +10,7 @@ import pytest
 from botocore.exceptions import ClientError
 
 # Make ingestion/ importable
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "ingestion"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "Ingestion"))
 
 import MySQL_Connector as mc
 
