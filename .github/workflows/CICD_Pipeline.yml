@@ -51,3 +51,37 @@ jobs:
 
       - name: Smoke test dbt image
         run: docker run --rm olist-dbt --version
+  push-to-ecr:
+    name: Push images to ECR
+    runs-on: ubuntu-latest
+    needs: docker-build-and-smoke-test
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build ingestion image
+        run: docker build -f docker/Dockerfile.ingestion -t $ECR_REGISTRY/olist-ingestion:${{ github.sha }} -t $ECR_REGISTRY/olist-ingestion:latest .
+
+      - name: Build dbt image
+        run: docker build -f docker/Dockerfile.dbt -t $ECR_REGISTRY/olist-dbt:${{ github.sha }} -t $ECR_REGISTRY/olist-dbt:latest .
+
+      - name: Push ingestion image
+        run: docker push --all-tags $ECR_REGISTRY/olist-ingestion
+
+      - name: Push dbt image
+        run: docker push --all-tags $ECR_REGISTRY/olist-dbt
