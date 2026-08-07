@@ -31,3 +31,23 @@ jobs:
 
       - name: Run unit tests
         run: pytest Test/ -v
+  docker-build-and-smoke-test:
+    name: Build + smoke test Docker images
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build ingestion image
+        run: docker build -f Docker/Dockerfile.ingestion -t olist-ingestion .
+
+      - name: Build dbt image
+        run: docker build -f Docker/Dockerfile.dbt -t olist-dbt .
+
+      - name: Smoke test ingestion image
+        run: docker run --rm --entrypoint python olist-ingestion --version
+
+      - name: Smoke test dbt image
+        run: docker run --rm olist-dbt --version
