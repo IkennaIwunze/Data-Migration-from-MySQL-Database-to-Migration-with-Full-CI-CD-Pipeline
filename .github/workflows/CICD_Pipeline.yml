@@ -62,10 +62,10 @@ jobs:
         run: docker build -f Docker/Dockerfile.dbt -t $ECR_REGISTRY/olist-dbt:${{ github.sha }} -t $ECR_REGISTRY/olist-dbt:latest .
 
       - name: Smoke test ingestion image
-        run: docker run --rm --entrypoint python olist-ingestion --version
+        run: docker run --rm --entrypoint python $ECR_REGISTRY/olist-ingestion:${{ github.sha }} --version
 
       - name: Smoke test dbt image
-        run: docker run --rm olist-dbt --version
+        run: docker run --rm $ECR_REGISTRY/olist-dbt:${{ github.sha }} --version
 
       - name: Push ingestion image
         run: docker push --all-tags $ECR_REGISTRY/olist-ingestion
