@@ -56,10 +56,10 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build ingestion image
-        run: docker build -f Docker/Dockerfile.ingestion -t $ECR_REGISTRY/olist-ingestion:${{ github.sha }} -t $ECR_REGISTRY/olist-ingestion:latest .
+        run: docker build -f Docker/Dockerfile.ingestion -t $ECR_REGISTRY/olist-ingestion:${{ github.sha }} .
 
       - name: Build dbt image
-        run: docker build -f Docker/Dockerfile.dbt -t $ECR_REGISTRY/olist-dbt:${{ github.sha }} -t $ECR_REGISTRY/olist-dbt:latest .
+        run: docker build -f Docker/Dockerfile.dbt -t $ECR_REGISTRY/olist-dbt:${{ github.sha }} .
 
       - name: Smoke test ingestion image
         run: docker run --rm --entrypoint python $ECR_REGISTRY/olist-ingestion:${{ github.sha }} --version
@@ -68,7 +68,7 @@ jobs:
         run: docker run --rm $ECR_REGISTRY/olist-dbt:${{ github.sha }} --version
 
       - name: Push ingestion image
-        run: docker push --all-tags $ECR_REGISTRY/olist-ingestion
+        run: docker push $ECR_REGISTRY/olist-ingestion:${{ github.sha }}
 
       - name: Push dbt image
-        run: docker push --all-tags $ECR_REGISTRY/olist-dbt
+        run: docker push $ECR_REGISTRY/olist-dbt:${{ github.sha }}
