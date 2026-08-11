@@ -1,0 +1,9 @@
+# docker/Dockerfile.snowflake-loader
+FROM public.ecr.aws/lambda/python:3.11
+
+COPY Lambda/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY Lambda/snowflake_loader.py ${LAMBDA_TASK_ROOT}
+
+CMD ["snowflake_loader.lambda_handler"]
