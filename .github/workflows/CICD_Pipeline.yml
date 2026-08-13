@@ -159,7 +159,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Snowflake loader image
-        run: docker build --platform linux/amd64 --provenance=false -f docker/Dockerfile.snowflake-loader -t $ECR_REGISTRY/olist-snowflake-loader:${{ github.sha }} .
+        run: docker build --platform linux/amd64 --provenance=false -f Docker/Dockerfile.snowflake-loader -t $ECR_REGISTRY/olist-snowflake-loader:${{ github.sha }} .
 
       - name: Push Snowflake loader image
         run: docker push $ECR_REGISTRY/olist-snowflake-loader:${{ github.sha }}
