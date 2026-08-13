@@ -1,0 +1,155 @@
+{
+  "Comment": "Olist pipeline: ingestion -> Snowflake load -> dbt",
+  "StartAt": "RunIngestionTask",
+  "States": {
+    "RunIngestionTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::ecs:runTask.sync",
+      "Parameters": {
+        "Cluster": "olist-cluster",
+        "TaskDefinition": "olist-ingestion-task",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "Subnets": [
+              "subnet-0393eb3a72b25cdf4"
+            ],
+            "SecurityGroups": [
+              "sg-0b8c8d01dbcccca38"
+            ],
+            "AssignPublicIp": "ENABLED"
+          }
+        }
+      },
+      "ResultPath": "$.ingestionResult",
+      "Next": "CheckIngestionExitCode",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error",
+          "Next": "PublishIngestionFailureAlert"
+        }
+      ]
+    },
+    "CheckIngestionExitCode": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.ingestionResult.Containers[0].ExitCode",
+          "NumericEquals": 0,
+          "Next": "RunSnowflakeLoad"
+        }
+      ],
+      "Default": "PublishIngestionFailureAlert"
+    },
+    "PublishIngestionFailureAlert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:eu-west-1:769488154012:olist-alerts",
+        "Subject": "[Olist Pipeline] Ingestion task FAILED",
+        "Message.$": "States.Format('Ingestion task failed or exited non-zero. Details: {}', States.JsonToString($))"
+      },
+      "Next": "PipelineFailed"
+    },
+    "RunSnowflakeLoad": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "olist-snowflake-loader",
+        "Payload.$": "$"
+      },
+      "ResultPath": "$.loadResult",
+      "Next": "RunDbtTask",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error",
+          "Next": "PublishSnowflakeLoadFailureAlert"
+        }
+      ]
+    },
+    "PublishSnowflakeLoadFailureAlert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:eu-west-1:769488154012:olist-alerts",
+        "Subject": "[Olist Pipeline] Snowflake load FAILED",
+        "Message.$": "States.Format('Snowflake load failed. Ingestion succeeded, dbt was NOT triggered. Details: {}', States.JsonToString($.error))"
+      },
+      "Next": "PipelineFailed"
+    },
+    "RunDbtTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::ecs:runTask.sync",
+      "Parameters": {
+        "Cluster": "olist-cluster",
+        "TaskDefinition": "olist-dbt-task",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "Subnets": [
+              "subnet-REPLACE-ME"
+            ],
+            "SecurityGroups": [
+              "sg-REPLACE-ME"
+            ],
+            "AssignPublicIp": "ENABLED"
+          }
+        }
+      },
+      "ResultPath": "$.dbtResult",
+      "Next": "CheckDbtExitCode",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error",
+          "Next": "PublishDbtFailureAlert"
+        }
+      ]
+    },
+    "CheckDbtExitCode": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.dbtResult.Containers[0].ExitCode",
+          "NumericEquals": 0,
+          "Next": "PublishSuccessAlert"
+        }
+      ],
+      "Default": "PublishDbtFailureAlert"
+    },
+    "PublishDbtFailureAlert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:eu-west-1:769488154012:olist-alerts",
+        "Subject": "[Olist Pipeline] dbt task FAILED",
+        "Message.$": "States.Format('dbt task failed or exited non-zero. Ingestion and Snowflake load succeeded. Details: {}', States.JsonToString($))"
+      },
+      "Next": "PipelineFailed"
+    },
+    "PublishSuccessAlert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:eu-west-1:769488154012:olist-alerts",
+        "Subject": "[Olist Pipeline] Run completed successfully",
+        "Message": "Ingestion, Snowflake load, and dbt all completed successfully."
+      },
+      "Next": "PipelineSucceeded"
+    },
+    "PipelineFailed": {
+      "Type": "Fail"
+    },
+    "PipelineSucceeded": {
+      "Type": "Succeed"
+    }
+  }
+}
