@@ -1,0 +1,13 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir dbt-core dbt-snowflake
+
+COPY dbt_olist_data_model/ ./dbt_olist_data_model/
+COPY profiles.yml /root/.dbt/profiles.yml
+
+WORKDIR /app/dbt_olist_data_model
+
+ENTRYPOINT ["dbt"]
+CMD ["run"]
