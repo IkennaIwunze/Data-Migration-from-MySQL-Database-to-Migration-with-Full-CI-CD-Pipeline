@@ -683,4 +683,4 @@ This project is for educational and portfolio purposes.
 
 ---
 
-**Built by [Ikenna Iwunze](https://github.com/iyke34)** — Data Engineering Portfolio Project
+**Built by [Ikenna Iwunze](https://github.com/IkennaIwunze)** — Data Engineering Portfolio Project
