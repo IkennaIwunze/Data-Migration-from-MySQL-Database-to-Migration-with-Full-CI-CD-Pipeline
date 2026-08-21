@@ -54,36 +54,7 @@ A complete **end-to-end data engineering portfolio project** demonstrating how t
 
 ### High-Level Architecture
 
-```
-┌──────────────┐      ┌──────────────────┐      ┌──────────────┐
-│   MySQL      │      │   ECS Fargate    │      │   Amazon S3  │
-│   (Aiven)    │─────▶│   Ingestion      │─────▶│   Raw JSON   │
-│   Source DB  │      │   Container      │      │   Files      │
-└──────────────┘      └──────────────────┘      └──────┬───────┘
-                                                        │
-                          ┌─────────────────────────────┘
-                          ▼
-                   ┌─────────────────┐      ┌──────────────────────┐
-                   │  AWS Lambda     │─────▶│  Snowflake RAW       │
-                   │  Snowflake      │      │  Schema (COPY INTO)  │
-                   │  Loader         │      │                      │
-                   └─────────────────┘      └──────────┬───────────┘
-                                                        │
-                          ┌─────────────────────────────┘
-                          ▼
-                   ┌─────────────────┐      ┌──────────────────────┐
-                   │  ECS Fargate    │─────▶│  Snowflake           │
-                   │  dbt Container  │      │  BRONZE → SILVER →   │
-                   │                 │      │  GOLD Schemas        │
-                   └─────────────────┘      └──────────────────────┘
-                          │
-                          ▼
-                   ┌─────────────────┐
-                   │  AWS Step       │
-                   │  Functions      │
-                   │  Orchestrator   │
-                   └─────────────────┘
-```
+![Pipeline Architecture](images/pipeline_flow.svg)
 
 ### Pipeline Stages
 

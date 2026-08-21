@@ -1,0 +1,267 @@
+<svg viewBox="0 0 1700 980" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </linearGradient>
+
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#5b6472"/>
+    </marker>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      .lane-label { fill: #8b949e; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; }
+      .node-title { fill: #e6edf3; font-size: 12.5px; font-weight: 600; }
+      .node-sub   { fill: #8b949e; font-size: 10.5px; }
+      .section    { fill: none; stroke: #21262d; stroke-width: 1; stroke-dasharray: 4 4; }
+      .flow-line  { fill: none; stroke: #30363d; stroke-width: 1.6; marker-end: url(#arrow); }
+      .flow-line-orch { fill: none; stroke: #3c3350; stroke-width: 1.4; stroke-dasharray: 3 4; }
+
+      .pulse {
+        animation: pulse 2.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { filter: none; }
+        50% { filter: url(#glow); }
+      }
+
+      .dot-mysql   { fill: #4479A1; }
+      .dot-compute { fill: #ED8B00; }
+      .dot-storage { fill: #3B7FC4; }
+      .dot-db      { fill: #29B5E8; }
+      .dot-transform { fill: #FF694B; }
+      .dot-cicd    { fill: #2EA44F; }
+      .dot-dest    { fill: #A371F7; }
+
+      text { user-select: none; }
+    </style>
+  </defs>
+
+  <rect width="1700" height="980" fill="url(#bg)"/>
+
+  <text x="40" y="42" fill="#e6edf3" font-size="19" font-weight="700">Olist Pipeline &#8212; MySQL to Snowflake, Dev to Destination</text>
+  <text x="40" y="64" fill="#8b949e" font-size="12.5">Aiven MySQL &#8594; ECS Fargate ingestion &#8594; S3 &#8594; Lambda &#8594; Snowflake (RAW &#8594; Bronze &#8594; Silver &#8594; Gold) &#8594; BI / analytics</text>
+
+  <!-- ============ SWIMLANE GUIDES ============ -->
+  <rect class="section" x="20" y="90" width="330" height="330"/>
+  <text class="lane-label" x="35" y="112">Source</text>
+
+  <rect class="section" x="365" y="90" width="330" height="330"/>
+  <text class="lane-label" x="380" y="112">Ingest &amp; land</text>
+
+  <rect class="section" x="710" y="90" width="330" height="330"/>
+  <text class="lane-label" x="725" y="112">Load</text>
+
+  <rect class="section" x="1055" y="90" width="330" height="330"/>
+  <text class="lane-label" x="1070" y="112">Snowflake &#8226; RAW</text>
+
+  <rect class="section" x="1400" y="90" width="270" height="330"/>
+  <text class="lane-label" x="1415" y="112">Consumption</text>
+
+  <rect class="section" x="20" y="470" width="1650" height="150"/>
+  <text class="lane-label" x="35" y="492">dbt medallion transform (ECS Fargate)</text>
+
+  <rect class="section" x="20" y="660" width="1650" height="130"/>
+  <text class="lane-label" x="35" y="682">Orchestration &#8226; AWS Step Functions</text>
+
+  <rect class="section" x="20" y="830" width="1650" height="120"/>
+  <text class="lane-label" x="35" y="852">CI/CD &#8226; GitHub Actions</text>
+
+  <!-- ============ NODES: SOURCE ============ -->
+  <g class="pulse" style="animation-delay:0s">
+    <rect x="80" y="190" width="150" height="64" rx="10" fill="#161b22" stroke="#4479A1" stroke-width="1.4"/>
+    <circle cx="105" cy="222" r="9" class="dot-mysql"/>
+    <text class="node-title" x="125" y="218">MySQL (Aiven)</text>
+    <text class="node-sub" x="125" y="234">9 source tables</text>
+  </g>
+
+  <!-- ============ NODES: INGEST & LAND ============ -->
+  <g class="pulse" style="animation-delay:0.3s">
+    <rect x="420" y="150" width="180" height="64" rx="10" fill="#161b22" stroke="#ED8B00" stroke-width="1.4"/>
+    <circle cx="445" cy="182" r="9" class="dot-compute"/>
+    <text class="node-title" x="465" y="178">ECS Fargate</text>
+    <text class="node-sub" x="465" y="194">olist-ingestion-task</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:0.6s">
+    <rect x="420" y="270" width="180" height="64" rx="10" fill="#161b22" stroke="#3B7FC4" stroke-width="1.4"/>
+    <circle cx="445" cy="302" r="9" class="dot-storage"/>
+    <text class="node-title" x="465" y="298">Amazon S3</text>
+    <text class="node-sub" x="465" y="314">raw JSON, date-partitioned</text>
+  </g>
+
+  <!-- ============ NODES: LOAD ============ -->
+  <g class="pulse" style="animation-delay:0.9s">
+    <rect x="765" y="150" width="180" height="64" rx="10" fill="#161b22" stroke="#ED8B00" stroke-width="1.4"/>
+    <circle cx="790" cy="182" r="9" class="dot-compute"/>
+    <text class="node-title" x="810" y="178">AWS Lambda</text>
+    <text class="node-sub" x="810" y="194">olist-snowflake-loader</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:1.2s">
+    <rect x="765" y="270" width="180" height="64" rx="10" fill="#161b22" stroke="#8b949e" stroke-width="1.2"/>
+    <text class="node-title" x="785" y="298">Secrets Manager</text>
+    <text class="node-sub" x="785" y="314">Snowflake credentials</text>
+  </g>
+
+  <!-- ============ NODES: SNOWFLAKE RAW ============ -->
+  <g class="pulse" style="animation-delay:1.5s">
+    <rect x="1110" y="190" width="180" height="70" rx="10" fill="#161b22" stroke="#29B5E8" stroke-width="1.6"/>
+    <circle cx="1135" cy="220" r="9" class="dot-db"/>
+    <text class="node-title" x="1155" y="216">olist_dw.raw</text>
+    <text class="node-sub" x="1155" y="232">COPY INTO via</text>
+    <text class="node-sub" x="1155" y="246">external S3 stage</text>
+  </g>
+
+  <!-- ============ NODES: CONSUMPTION ============ -->
+  <g class="pulse" style="animation-delay:2.4s">
+    <rect x="1440" y="200" width="190" height="64" rx="10" fill="#161b22" stroke="#A371F7" stroke-width="1.4"/>
+    <circle cx="1465" cy="232" r="9" class="dot-dest"/>
+    <text class="node-title" x="1485" y="228">BI / analytics</text>
+    <text class="node-sub" x="1485" y="244">queries on Gold star schema</text>
+  </g>
+
+  <!-- ============ NODES: DBT MEDALLION ============ -->
+  <g class="pulse" style="animation-delay:1.6s">
+    <rect x="80" y="510" width="170" height="60" rx="10" fill="#161b22" stroke="#FF694B" stroke-width="1.4"/>
+    <circle cx="103" cy="540" r="8" class="dot-transform"/>
+    <text class="node-title" x="122" y="536">ECS Fargate</text>
+    <text class="node-sub" x="122" y="551">olist-dbt-task</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:1.8s">
+    <rect x="360" y="510" width="170" height="60" rx="10" fill="#161b22" stroke="#a0532c" stroke-width="1.4"/>
+    <text class="node-title" x="400" y="536">Bronze</text>
+    <text class="node-sub" x="400" y="551">typed, null-coalesced</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:2.0s">
+    <rect x="640" y="510" width="170" height="60" rx="10" fill="#161b22" stroke="#c0c0c0" stroke-width="1.4"/>
+    <text class="node-title" x="680" y="536">Silver</text>
+    <text class="node-sub" x="680" y="551">conformed + tested</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:2.2s">
+    <rect x="920" y="510" width="170" height="60" rx="10" fill="#161b22" stroke="#d4af37" stroke-width="1.4"/>
+    <text class="node-title" x="960" y="536">Gold</text>
+    <text class="node-sub" x="960" y="551">star schema, dims + facts</text>
+  </g>
+
+  <text class="node-sub" x="1200" y="546" fill="#6e7681">fct_orders &#183; fct_order_items &#183; dim_customers &#183; dim_products &#8230;</text>
+
+  <!-- ============ NODES: ORCHESTRATION ============ -->
+  <g class="pulse" style="animation-delay:0.4s">
+    <rect x="80" y="700" width="220" height="60" rx="10" fill="#161b22" stroke="#7c6bb0" stroke-width="1.4"/>
+    <text class="node-title" x="100" y="726">AWS Step Functions</text>
+    <text class="node-sub" x="100" y="742">ingest &#8594; load &#8594; transform</text>
+  </g>
+  <g>
+    <rect x="1240" y="700" width="200" height="60" rx="10" fill="#161b22" stroke="#6e7681" stroke-width="1.2"/>
+    <text class="node-title" x="1260" y="726">SNS &#183; olist-alerts</text>
+    <text class="node-sub" x="1260" y="742">on-failure notification</text>
+  </g>
+
+  <!-- ============ NODES: CI/CD ============ -->
+  <g class="pulse" style="animation-delay:0.7s">
+    <rect x="80" y="870" width="180" height="60" rx="10" fill="#161b22" stroke="#2EA44F" stroke-width="1.4"/>
+    <circle cx="103" cy="900" r="8" class="dot-cicd"/>
+    <text class="node-title" x="122" y="896">GitHub Actions</text>
+    <text class="node-sub" x="122" y="911">lint &#183; test &#183; build</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:1.0s">
+    <rect x="360" y="870" width="150" height="60" rx="10" fill="#161b22" stroke="#ED8B00" stroke-width="1.4"/>
+    <text class="node-title" x="380" y="896">Amazon ECR</text>
+    <text class="node-sub" x="380" y="911">tagged images</text>
+  </g>
+
+  <text class="node-sub" x="600" y="905" fill="#6e7681">&#8594; updates ECS task defs &amp; Lambda function code on deploy</text>
+
+  <!-- ============ CONNECTORS: MAIN FLOW ============ -->
+  <path class="flow-line" d="M230,222 C300,222 340,182 420,182"/>
+  <path class="flow-line" d="M600,182 C610,182 610,302 600,302 C580,302 560,240 510,225 C490,215 470,195 470,182"/>
+  <path class="flow-line" d="M510,302 C620,302 700,300 700,182 C700,150 730,182 765,182"/>
+  <path class="flow-line" d="M945,182 C1020,182 1060,220 1110,220"/>
+  <path class="flow-line" d="M1290,225 C1350,225 1390,232 1440,232"/>
+
+  <!-- raw -> bronze -> silver -> gold -->
+  <path class="flow-line" d="M1180,260 C1180,400 165,470 165,510"/>
+  <path class="flow-line" d="M250,540 L360,540"/>
+  <path class="flow-line" d="M530,540 L640,540"/>
+  <path class="flow-line" d="M810,540 L920,540"/>
+  <path class="flow-line" d="M1090,540 C1300,540 1535,400 1535,264"/>
+
+  <!-- orchestration ties (dashed) -->
+  <path class="flow-line-orch" d="M190,700 C190,450 500,182 420,182"/>
+  <path class="flow-line-orch" d="M300,725 C700,725 850,600 850,214"/>
+  <path class="flow-line-orch" d="M300,735 C165,735 165,650 165,570"/>
+  <path class="flow-line-orch" d="M1090,555 C1200,650 1200,660 1240,720"/>
+
+  <!-- CI/CD ties (dashed) -->
+  <path class="flow-line-orch" d="M260,895 C340,895 340,895 360,895"/>
+  <path class="flow-line-orch" d="M435,870 C435,700 500,214 420,182"/>
+  <path class="flow-line-orch" d="M435,870 C435,700 765,220 765,182"/>
+  <path class="flow-line-orch" d="M435,870 C300,780 165,650 165,570"/>
+
+  <!-- ============ ANIMATED FLOW PULSES ============ -->
+  <circle r="4.5" class="dot-mysql" filter="url(#glow)">
+    <animateMotion dur="3.2s" repeatCount="indefinite" begin="0s"
+      path="M230,222 C300,222 340,182 420,182"/>
+  </circle>
+  <circle r="4.5" class="dot-compute" filter="url(#glow)">
+    <animateMotion dur="3.2s" repeatCount="indefinite" begin="0.6s"
+      path="M600,182 C610,182 610,302 600,302 C580,302 560,240 510,225 C490,215 470,195 470,182"/>
+  </circle>
+  <circle r="4.5" class="dot-storage" filter="url(#glow)">
+    <animateMotion dur="3.2s" repeatCount="indefinite" begin="1.2s"
+      path="M510,302 C620,302 700,300 700,182 C700,150 730,182 765,182"/>
+  </circle>
+  <circle r="4.5" class="dot-compute" filter="url(#glow)">
+    <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.8s"
+      path="M945,182 C1020,182 1060,220 1110,220"/>
+  </circle>
+  <circle r="4.5" class="dot-db" filter="url(#glow)">
+    <animateMotion dur="2.4s" repeatCount="indefinite" begin="2.2s"
+      path="M1180,260 C1180,400 165,470 165,510"/>
+  </circle>
+  <circle r="4.5" class="dot-transform" filter="url(#glow)">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="2.6s"
+      path="M250,540 L360,540"/>
+  </circle>
+  <circle r="4.5" class="dot-transform" filter="url(#glow)">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="3.0s"
+      path="M530,540 L640,540"/>
+  </circle>
+  <circle r="4.5" class="dot-transform" filter="url(#glow)">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="3.4s"
+      path="M810,540 L920,540"/>
+  </circle>
+  <circle r="4.5" class="dot-dest" filter="url(#glow)">
+    <animateMotion dur="2.8s" repeatCount="indefinite" begin="3.8s"
+      path="M1090,540 C1300,540 1535,400 1535,264"/>
+  </circle>
+  <circle r="4.5" class="dot-dest" filter="url(#glow)">
+    <animateMotion dur="2s" repeatCount="indefinite" begin="4.4s"
+      path="M1290,225 C1350,225 1390,232 1440,232"/>
+  </circle>
+
+  <!-- legend -->
+  <g transform="translate(1400,830)">
+    <text class="lane-label" x="0" y="0">Legend</text>
+    <circle cx="8" cy="18" r="6" class="dot-mysql"/><text class="node-sub" x="22" y="22">Source DB</text>
+    <circle cx="8" cy="38" r="6" class="dot-compute"/><text class="node-sub" x="22" y="42">Compute</text>
+    <circle cx="8" cy="58" r="6" class="dot-storage"/><text class="node-sub" x="22" y="62">Storage</text>
+    <circle cx="8" cy="78" r="6" class="dot-db"/><text class="node-sub" x="22" y="82">Warehouse</text>
+    <circle cx="130" cy="18" r="6" class="dot-transform"/><text class="node-sub" x="144" y="22">Transform</text>
+    <circle cx="130" cy="38" r="6" class="dot-cicd"/><text class="node-sub" x="144" y="42">CI/CD</text>
+    <circle cx="130" cy="58" r="6" class="dot-dest"/><text class="node-sub" x="144" y="62">Destination</text>
+  </g>
+</svg>
