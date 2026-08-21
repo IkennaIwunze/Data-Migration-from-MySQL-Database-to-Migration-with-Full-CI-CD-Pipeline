@@ -631,36 +631,7 @@ The `ruff` configuration in `pyproject.toml` ignores `DTZ003` (missing timezone 
 
 The AWS Step Functions state machine executes the following sequence:
 
-```
-┌─────────────────────┐
-│  RunIngestionTask   │  ECS Fargate: olist-ingestion-task
-│  (ecs:runTask.sync) │  Extracts MySQL → S3
-└─────────┬───────────┘
-          │ exit code == 0?
-          ▼
-┌─────────────────────┐     ┌─────────────────┐
-│  CheckIngestion-    │ No  │  Ingestion-     │
-│  ExitCode           │────▶│  Failed (SNS)   │
-└─────────┬───────────┘     └─────────────────┘
-          │ Yes
-          ▼
-┌─────────────────────┐
-│  RunSnowflakeLoad   │  Lambda: olist-snowflake-loader
-│  (lambda:invoke)    │  Calls COPY INTO stored proc
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐     ┌─────────────────┐
-│  RunDbtTask         │ No  │  DbtFailed      │
-│  (ecs:runTask.sync) │────▶│  (SNS)          │
-│  Runs dbt run       │     └─────────────────┘
-└─────────┬───────────┘
-          │ Yes
-          ▼
-┌─────────────────────┐
-│  PipelineSucceeded  │  (optional SNS notification)
-└─────────────────────┘
-```
+![AWS Step Functions State Machine Diagram](images/pipeline_image.png)
 
 **Error Handling:** Each stage includes a `Catch` block that publishes a failure message to the `olist-alerts` SNS topic before transitioning to a terminal `Fail` state.
 
